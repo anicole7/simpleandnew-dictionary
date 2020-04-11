@@ -2,9 +2,9 @@
 # Dictionnaire(id, langue, label)
 # Mot(id, label)
 
-require "./sentences_helper.rb"
-require "./sqlitedb_helper.rb"
-require "./file_helper.rb"
+require "./helpers/sentences_helper.rb"
+require "./helpers/sqlitedb_helper.rb"
+require "./helpers/file_helper.rb"
 
 # déclaration des différents helpers
 sentences_helper = SentencesHelper.new
@@ -13,10 +13,12 @@ file_helper = FileHelper.new
 
 # Helper BDD
 sqlitedb_helper.open_db
-sqlitedb_helper.get_all("words")
-
+test = sqlitedb_helper.insert("words", words = {label: "test", dictionary_id: 1})
+test = sqlitedb_helper.insert("words", words = {label: "testamere", dictionary_id: 1})
+test = sqlitedb_helper.get_all("words")
+p test
 # Helper File
-p file_helper.get_file_data
+#p file_helper.get_file_data
 
 ################################################################################ loop console
 

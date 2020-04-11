@@ -3,8 +3,19 @@ class FileHelper
 
     attr_accessor :file
 
+    def initialize
+        puts "INITIALISE FILE HELPER"
+    end
+
     def open_file(file_path = nil)
-        @file = File.open(file_path ? file_path : "dictionary.text")
+        file_name = file_path ? file_path : "../assets/dictionary.text"
+        
+        if File.file?(file_name)
+            @file = File.open(file_name)
+        else
+            p "Fichier non trouvé"
+            return false
+        end
     end
 
     def file_readlines
