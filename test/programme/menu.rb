@@ -1,26 +1,13 @@
-####################################################### TEST BDD
-# Dictionnaire(id, langue, label)
-# Mot(id, label)
-
 require "./helpers/sentences_helper.rb"
 require "./helpers/sqlitedb_helper.rb"
 require "./helpers/file_helper.rb"
 
-# déclaration des différents helpers
+# Déclaration des différents helpers
 sentences_helper = SentencesHelper.new
 sqlitedb_helper = SqlitedbHelper.new
 file_helper = FileHelper.new
 
-# Helper BDD
-sqlitedb_helper.open_db
-test = sqlitedb_helper.insert("words", words = {label: "test", dictionary_id: 1})
-test = sqlitedb_helper.insert("words", words = {label: "testamere", dictionary_id: 1})
-test = sqlitedb_helper.get_all("words")
-p test
-# Helper File
-#p file_helper.get_file_data
-
-################################################################################ loop console
+####################### loop console #######################
 
 sentences_helper.first_entrie
 
