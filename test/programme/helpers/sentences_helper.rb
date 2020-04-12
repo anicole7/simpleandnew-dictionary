@@ -15,7 +15,11 @@ class SentencesHelper
     end
 
     def saisie
-        return gets.chomp
+        return self.remove_space((gets.chomp).downcase)
+    end
+
+    def remove_space(string)
+        return string.gsub(/\s+/, "")
     end
     
     # Greetings
@@ -92,6 +96,21 @@ class SentencesHelper
 
     def wrong_action_choice
         puts "Ceci ne correspond à aucune action."
+    end
+
+    # Word already exists
+    def display_words_added(words, added_word)
+        p words.count > 1 ? ("Les mots" + added_word + " ont etes ajoutes") : ("Le mot" + added_word + " a ete ajoute")         
+    end
+
+    # Word already exists
+    def word_exists(word)
+        p "Le mot #{word} existe dans le dictionnaire"
+    end
+
+    # Empty word
+    def word_empty
+        p "Vous ne pouvez pas enregistrer un mot vide"
     end
 
     # Proc
