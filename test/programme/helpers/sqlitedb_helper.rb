@@ -94,10 +94,9 @@ class SqlitedbHelper
         when "dictionaries"
             request = @dictionary_sqlite_request_helper.public_send("search_#{table_name}_by_#{method}", value)
         end
-
-        p request
+        
         result = execute_request(request)
-        p result
+
         return result
     end
 

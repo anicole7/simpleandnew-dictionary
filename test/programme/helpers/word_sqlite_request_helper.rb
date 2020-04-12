@@ -54,17 +54,46 @@ class WordSqliteRequestHelper
     end
 
     def search_words_by_conditions(conditions_values)
-        min = conditions_values[:min]
-        max = conditions_values[:max]
-        first = conditions_values[:first]
-        last = conditions_values[:last]
 
-        request = "SELECT * from words WHERE "
-        request += " LENGTH(label) >= #{min}" if min
-        request += " and LENGTH(label) <= #{max}" if max
-        # SUBSTRING(colName, 1, 1) --- for first letter
-        request += " and SUBSTR(label, 1, 1) = '#{first}'" if first
-        # SUBSTR(column, LENGTH(column) - 3, 4) --- for 4 last_letter
-        request += " and SUBSTR(label, LENGTH(label), 1) = '#{last}'" if last
+        unless conditions_values.values.any?
+            request = "SELECT * from words"
+            return request
+        end
+
+        and_flag = false
+        and_sentence = " and"
+
+        min = conditions_values[:min].to_s
+        max = conditions_values[:max].to_s
+        first = conditions_values[:first].to_s
+        last = conditions_values[:last].to_s
+
+        request = "SELECT * from words WHERE"
+
+        if min && !min.empty?
+            request += " LENGTH(label) >= #{min}"
+            and_flag = true
+        end
+
+        if max && !max.empty?
+            max_cond = " LENGTH(label) <= #{max}"
+            request += and_flag ? (and_sentence + max_cond) : max_cond
+            and_flag = true
+        end
+
+        if first && !first.empty?
+            first_cond = " SUBSTR(label, 1, 1) = '#{first}'"
+            request += and_flag ? (and_sentence + first_cond) : first_cond
+            and_flag = true
+        end
+
+        if last && !last.empty?
+            last_cond = " SUBSTR(label, LENGTH(label), 1) = '#{last}'"
+            request += and_flag ? (and_sentence + last_cond) : last_cond
+            and_flag = true
+        end
+
+        return request
+
     end
 end

@@ -140,13 +140,61 @@ words = unitTest.test_get_all_words
 p "Did work, test_delete_word_by_label(['TEST1', 'TEST2', 'TEST3'])" if words.count == 0
 
 # INSERTION DE MOTS
+unitTest.test_insert_word(words = {label: "Z", dictionary_id: 1})
+unitTest.test_insert_word(words = {label: "Un", dictionary_id: 1})
+unitTest.test_insert_word(words = {label: "Vie", dictionary_id: 1})
+unitTest.test_insert_word(words = {label: "Deux", dictionary_id: 1})
+unitTest.test_insert_word(words = {label: "Boire", dictionary_id: 1})
+unitTest.test_insert_word(words = {label: "Rougir", dictionary_id: 1})
+unitTest.test_insert_word(words = {label: "Jardins", dictionary_id: 1})
+unitTest.test_insert_word(words = {label: "Ronfler", dictionary_id: 1})
 unitTest.test_insert_word(words = {label: "Bonjour", dictionary_id: 1})
 unitTest.test_insert_word(words = {label: "Bonsoir", dictionary_id: 1})
 unitTest.test_insert_word(words = {label: "Jardiner", dictionary_id: 1})
+
 words = unitTest.test_get_all_words
-p "Did work, test_insert_word" if words.count == 3
+p "Did work, test_insert_word" if words.count == 11
 
-# TEST DE RECHERCHE #
-unitTest.test_search_words_by_wildcards("_on%")
+### TEST DE RECHERCHE ###
 
-unitTest.test_search_words_by_conditions({min: 1, max: 8, first: 'J', last: 'r'})
+p "TEST DE RECHERCHE WILDCARDS"
+
+# Melange correct _ et %
+words = unitTest.test_search_words_by_wildcards("_on%")
+p "Did work, test_search_words_by_wildcards('_on%')" if words.count == 3
+# Melange incorrect _ et %
+words = unitTest.test_search_words_by_wildcards("_onaz%")
+p "Did work, test_search_words_by_wildcards('_onaz%')" if words.count == 0
+# UNIQUEMENT ____
+words = unitTest.test_search_words_by_wildcards("____")
+p "Did work, test_search_words_by_wildcards('____')" if words.count == 1
+# UNIQUEMENT %
+words = unitTest.test_search_words_by_wildcards("%")
+p "Did work, test_search_words_by_wildcards('%')" if words.count == 11
+# TEST %%
+words = unitTest.test_search_words_by_wildcards("%%")
+p "Did work, test_search_words_by_wildcards('%%')" if words.count == 11
+
+p "TEST DE RECHERCHE CONDITIONS"
+
+# TOUS LES PARAMETRES NIL
+words = unitTest.test_search_words_by_conditions({min: nil, max: nil, first: nil, last: nil})
+p "Did work, test_search_words_by_conditions({min: nil, max: nil, first: nil, last: nil})" if words.count == 11
+
+# PREMIER ET DERNIER NIL
+words = unitTest.test_search_words_by_conditions({min: nil, max: 5, first: 'V', last: nil})
+p "Did work, test_search_words_by_conditions({min: nil, max: 5, first: 'V', last: nil})" if words.count == 1
+
+# AUCUN NIL
+words =  unitTest.test_search_words_by_conditions({min: 0, max: 10, first: 'B', last: 'r'})
+p "Did work, test_search_words_by_conditions({min: 0, max: 10, first: 'B', last: 'r'})" if words.count == 2
+
+# MAUVAISES CONDITIONS
+words =  unitTest.test_search_words_by_conditions({min: 2, max: 0, first: 'J', last: 'r'})
+p "Did work, test_search_words_by_conditions({min: 2, max: 0, first: 'J', last: 'r'})" if words.count == 0
+
+# CONDITIONS PARTICULIERES
+words =  unitTest.test_search_words_by_conditions({min: 1, max: 1, first: 'Z', last: 'Z'})
+p "Did work, test_search_words_by_conditions({min: 1, max: 1, first: 'Z', last: 'Z'})" if words.count == 1
+
+# TODO: GERER LE CAS INSENSIBLE A LA CASSE
