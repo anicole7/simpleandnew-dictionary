@@ -32,13 +32,14 @@ class WordSqliteRequestHelper
 
     def delete_words_by_label(words_label)
         word_num = 1
-        count = words_label.count
+
+        word_count = words_label.count
 
         request = "DELETE FROM words WHERE label in ("
         words_label.each do |label|
             request += "'" + label + "'"
 
-            if word_num < count
+            if word_num < word_count
                 request += ", "
             end
 
@@ -94,6 +95,15 @@ class WordSqliteRequestHelper
         end
 
         return request
+    end
 
+    def format_words_result(words_values)
+        result = []
+
+        words_values.each do |word|
+            result << word["label"]
+        end
+
+        return result
     end
 end

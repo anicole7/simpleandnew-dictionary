@@ -53,6 +53,7 @@ class SqlitedbHelper
     # Select * from a table
     def get_all(table_name)
         data = execute_request("SELECT * from #{table_name};") 
+        return format_result(table_name, data)
     end
 
     # Insert object in a table
@@ -69,6 +70,7 @@ class SqlitedbHelper
 
         # request_values[0] for request string, request_values[1] for values
         result = execute_request(request_values[0], request_values[1])
+       
         return result
     end
 
@@ -84,6 +86,7 @@ class SqlitedbHelper
         end
 
         result = execute_request(request)
+
         return result
     end
 
@@ -94,10 +97,10 @@ class SqlitedbHelper
         when "dictionaries"
             request = @dictionary_sqlite_request_helper.public_send("search_#{table_name}_by_#{method}", value)
         end
-        
+
         result = execute_request(request)
 
-        return result
+        return format_result(table_name, result)
     end
 
     # Request execution
@@ -115,11 +118,23 @@ class SqlitedbHelper
                 end
             end
         rescue => exception
-            p exception
-            return false
+            return {error: true, errorMessage: exception.message}
         end
         
         return result
+    end
+
+    def format_result(table_name, result)
+        formatted_result = []
+
+        case table_name
+        when "words"
+            formatted_result = @word_sqlite_request_helper.public_send("format_#{table_name}_result", result)
+        when "dictionaries"
+            formatted_result = @dictionary_sqlite_request_helper.public_send("format_#{table_name}_result", result)
+        end
+
+        return formatted_result
     end
 
 end
