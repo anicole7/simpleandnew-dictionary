@@ -1,128 +1,126 @@
 # Helper pour la gestion de bdd 
 
-require_relative  "./word_sqlite_request_helper.rb"
+require_relative "./bdd_structure_helper.rb"
+require_relative "./word_sqlite_request_helper.rb"
 
 require "sqlite3"
 
 class SqlitedbHelper
 
     attr_accessor :sqlitedb_helper
-    attr_accessor :sqlitedb_words_helper
+    attr_accessor :word_sqlite_request_helper
+    attr_accessor :bdd_structure_helper
 
+    # Constructeur
     def initialize(db_name = nil)
         puts "INITIALISE DB HELPER"
+        @bdd_structure_helper = BddStructureHelper.new
+        @word_sqlite_request_helper = WordSqliteRequestHelper.new
+
         open_db(db_name)
         delete_table
         init_table
-
-        @sqlitedb_words_helper = WordSqliteRequestHelper.new
     end
 
-    # Open a database
+    # Open a database and return the sqlite3 Object
     def open_db(db_name = nil)
-        @sqlitedb_helper = SQLite3::Database.new db_name ? db_name : "simpleandnewdictionnary.db"
+        if db_name != nil && !db_name.empty?
+            # Créera automatiquement la base même si elle n'existe pas
+            @sqlitedb_helper = SQLite3::Database.new db_name 
+        else
+            # Par défaut ouvre simpleandnewdictionnary.db
+            @sqlitedb_helper = SQLite3::Database.new "simpleandnewdictionnary.db"
+        end
         @sqlitedb_helper.results_as_hash = true
+
+        return @sqlitedb_helper
     end
 
     # Create a database
     def init_table
-        execute_request("CREATE TABLE IF NOT EXISTS 
-        dictionaries(
-            dictionary_id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            title TEXT NOT NULL UNIQUE,
-            language TEXT NOT NULL
-        )")
-
-        execute_request("CREATE TABLE IF NOT EXISTS 
-        words(
-            word_id INTEGER PRIMARY KEY AUTOINCREMENT, 
-            label TEXT NOT NULL UNIQUE, 
-            dictionary_id INTEGER NOT NULL,
-            FOREIGN KEY (dictionary_id) REFERENCES dictionnaries (id) ON DELETE CASCADE ON UPDATE NO ACTION
-        )")
+        @bdd_structure_helper.get_tables_structure.each do |table_structure|
+            execute_request(table_structure)
+        end
     end
 
     # Drop databases
     def delete_table
-        execute_request("DROP TABLE IF EXISTS dictionaries")
-        execute_request("DROP TABLE IF EXISTS words")
+        @bdd_structure_helper.get_table_list.each do |table_name|
+            execute_request("DROP TABLE IF EXISTS #{table_name}")
+        end
     end
 
+    # Select * from a table
     def get_all(table_name)
         data = execute_request("SELECT * from #{table_name};") 
     end
 
+    # Insert object in a table
     def insert(table_name, object_hash)
+        result = []
         request_values = nil
+
+        case table_name
+        when "words"
+            request_values = @word_sqlite_request_helper.insert_word(object_hash)
+        when "dictionaries"
+            request_values = @dictionary_sqlite_request_helper.insert_dictionary(object_hash)
+        end
+
+        # request_values[0] for request string, request_values[1] for values
+        result = execute_request(request_values[0], request_values[1])
+        return result
+    end
+
+    # Delete object(s) from a table with a specific parameter
+    def delete_by_param(table_name, param, values)
         result = []
 
         case table_name
         when "words"
-            request_values = @sqlitedb_words_helper.insert_word(object_hash)
+            request = @word_sqlite_request_helper.public_send("delete_#{table_name}_by_#{param}", values)
         when "dictionaries"
-            request_values = @sqlitedb_dictionaries_helper.insert_dictionary(object_hash)
+            request = @dictionary_sqlite_request_helper.public_send("delete_#{table_name}_by_#{param}", values)
         end
 
-        #puts request_values
-
-        result = execute_request(request_values[0], request_values[1])
-    end
-
-    def execute_request(request, params = nil)
-        result = []
-
-        if params
-            @sqlitedb_helper.execute(request, params) do |row|
-                result << row
-            end
-        else
-            @sqlitedb_helper.execute(request) do |row|
-                result << row
-            end
-        end
-
+        result = execute_request(request)
         return result
     end
 
-    # ############### A REVOIR
+    def search(table_name, method, value)
+        case table_name
+        when "words"
+            request = @word_sqlite_request_helper.public_send("search_#{table_name}_by_#{method}", value)
+        when "dictionaries"
+            request = @dictionary_sqlite_request_helper.public_send("search_#{table_name}_by_#{method}", value)
+        end
 
-    def test_insert
-        # Execute a few inserts
-        test_words = []
-        test_dictionaries = {title: "Larousse 2020", language: "Francais"}
+        p request
+        result = execute_request(request)
+        p result
+        return result
+    end
 
-        @title = test_dictionaries[:title]
-        @language = test_dictionaries[:language]
+    # Request execution
+    def execute_request(request, params = nil)
+        result = []
 
         begin
-            db.execute "INSERT INTO dictionaries (title, language) values (?, ?)", [@title, @language]
+            if params
+                @sqlitedb_helper.execute(request, params) do |row|
+                    result << row
+                end
+            else
+                @sqlitedb_helper.execute(request) do |row|
+                    result << row
+                end
+            end
         rescue => exception
             p exception
+            return false
         end
-
-        db.execute("select * from dictionaries") do |row|
-            @dictionary = row
-        end
-
-        test_words << { label: "tornade",  dictionary_id: @dictionary["dictionary_id"] }
-        test_words << { label: "annoncer", dictionary_id: @dictionary["dictionary_id"] }
-        test_words << { label: "pointu",   dictionary_id: @dictionary["dictionary_id"] }
-        test_words << { label: "palette",  dictionary_id: @dictionary["dictionary_id"] }
-        test_words << { label: "saveur",   dictionary_id: @dictionary["dictionary_id"] }
-
-        p test_words
-
-        test_words.each do |words|
-            db.execute "INSERT INTO words (label, dictionary_id) VALUES (?, ?)", words[:label], words[:dictionary_id]
-        end
-
-        #Execute inserts with parameter markers
-        #db.execute("INSERT INTO students (name, email, grade, blog) VALUES (?, ?, ?, ?)", [@name, @email, @grade, @blog])
-
-        db.execute("select * from words") do |row|
-            @words = row
-            p row
-        end
+        
+        return result
     end
 
 end
