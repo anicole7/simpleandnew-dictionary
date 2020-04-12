@@ -8,12 +8,13 @@ class FileHelper
     end
 
     def open_file(file_path = nil)
-        file_name = file_path ? file_path : "../assets/dictionary.text"
+        file_name = file_path ? file_path : "./dictionary.text"
         
         if File.file?(file_name)
+             # p "Fichier trouvé"
             @file = File.open(file_name)
         else
-            p "Fichier non trouvé"
+            # p "Fichier non trouvé"
             return false
         end
     end
