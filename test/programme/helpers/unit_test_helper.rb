@@ -80,29 +80,29 @@ p unitTest.sqlitedb_helper.open_db("")
 
 ### SUITE DE TEST D'INSERTION DE WORDS EN BDD ###
 p "# TEST INSERTION BDD #"
-unitTest.test_insert_word(words = {label: "test", dictionary_id: 1})
+unitTest.test_insert_word({label: "test", dictionary_id: 1})
 words = unitTest.test_get_all_words
-p "Did work, test_insert_word(words = {label: 'test', dictionary_id: 1})" if words.count == 1
+p "Did work, test_insert_word({label: 'test', dictionary_id: 1})" if words.count == 1
 
 # TEST CHECK LENGTH of label >= 1
-unitTest.test_insert_word(words = {label: '', dictionary_id: 1})
+unitTest.test_insert_word({label: '', dictionary_id: 1})
 words = unitTest.test_get_all_words
-p "Did not work, test_insert_word(words = {label: '', dictionary_id: 1})" if words.count == 1
+p "Did not work, test_insert_word({label: '', dictionary_id: 1})" if words.count == 1
 
 # TEST CHECK dictionary_id is integer
-unitTest.test_insert_word(words = {label: 'test2', dictionary_id: ''})
+unitTest.test_insert_word({label: 'test2', dictionary_id: ''})
 words = unitTest.test_get_all_words
-p "Did not work, test_insert_word(words = {label: 'test2', dictionary_id: ''})" if words.count == 1
+p "Did not work, test_insert_word({label: 'test2', dictionary_id: ''})" if words.count == 1
 
 # TEST CHECK dictionary_id is > 0
-unitTest.test_insert_word(words = {label: 'test2', dictionary_id: 0})
+unitTest.test_insert_word({label: 'test2', dictionary_id: 0})
 words = unitTest.test_get_all_words
-p "Did not work, test_insert_word(words = {label: 'test2', dictionary_id: 0})" if words.count == 1
+p "Did not work, test_insert_word({label: 'test2', dictionary_id: 0})" if words.count == 1
 
 # TEST UNIQUENESS OF label CONSTRAINT
-unitTest.test_insert_word(words = {label: "test", dictionary_id: 1})
+unitTest.test_insert_word({label: "test", dictionary_id: 1})
 words = unitTest.test_get_all_words
-p "Did not work, test_insert_word(words = {label: 'test', dictionary_id: 1})" if words.count == 1
+p "Did not work, test_insert_word({label: 'test', dictionary_id: 1})" if words.count == 1
 
 # TEST SUPPRESSION DE WORDS EN BDD ###
 p "# TEST SUPPRESSION BDD #"
@@ -111,9 +111,9 @@ words = unitTest.test_get_all_words
 p "Did work, test_delete_word_by_label(['test'])" if words.count == 0
 
 # INSERTION EN MAJUSCULES
-unitTest.test_insert_word(words = {label: "TEST", dictionary_id: 1})
+unitTest.test_insert_word({label: "TEST", dictionary_id: 1})
 words = unitTest.test_get_all_words
-p "Did work, test_insert_word(words = {label: 'TEST', dictionary_id: 1})" if words.count == 1
+p "Did work, test_insert_word({label: 'TEST', dictionary_id: 1})" if words.count == 1
 
 # TEST SUPPRESSION AVEC CASSE
 unitTest.test_delete_word_by_label(["test"])
@@ -124,15 +124,15 @@ words = unitTest.test_get_all_words
 p "Did work, test_delete_word_by_label(['TEST'])" if words.count == 0
 
 # INSERTION DE PLUSIEURS MOTS
-unitTest.test_insert_word(words = {label: "TEST1", dictionary_id: 1})
+unitTest.test_insert_word({label: "TEST1", dictionary_id: 1})
 words = unitTest.test_get_all_words
-p "Did work, test_insert_word(words = {label: 'TEST1', dictionary_id: 1})" if words.count == 1
-unitTest.test_insert_word(words = {label: "TEST2", dictionary_id: 1})
+p "Did work, test_insert_word({label: 'TEST1', dictionary_id: 1})" if words.count == 1
+unitTest.test_insert_word({label: "TEST2", dictionary_id: 1})
 words = unitTest.test_get_all_words
-p "Did work, test_insert_word(words = {label: 'TEST2', dictionary_id: 1})" if words.count == 2
-unitTest.test_insert_word(words = {label: "TEST3", dictionary_id: 1})
+p "Did work, test_insert_word({label: 'TEST2', dictionary_id: 1})" if words.count == 2
+unitTest.test_insert_word({label: "TEST3", dictionary_id: 1})
 words = unitTest.test_get_all_words
-p "Did work, test_insert_word(words = {label: 'TEST3', dictionary_id: 1})" if words.count == 3
+p "Did work, test_insert_word({label: 'TEST3', dictionary_id: 1})" if words.count == 3
 
 # TEST SUPPRESSION PLUSIEURS MOTS D'UN COUP
 unitTest.test_delete_word_by_label(["TEST1", "TEST2", "TEST3"])
@@ -140,20 +140,26 @@ words = unitTest.test_get_all_words
 p "Did work, test_delete_word_by_label(['TEST1', 'TEST2', 'TEST3'])" if words.count == 0
 
 # INSERTION DE MOTS
-unitTest.test_insert_word(words = {label: "Z", dictionary_id: 1})
-unitTest.test_insert_word(words = {label: "Un", dictionary_id: 1})
-unitTest.test_insert_word(words = {label: "Vie", dictionary_id: 1})
-unitTest.test_insert_word(words = {label: "Deux", dictionary_id: 1})
-unitTest.test_insert_word(words = {label: "Boire", dictionary_id: 1})
-unitTest.test_insert_word(words = {label: "Rougir", dictionary_id: 1})
-unitTest.test_insert_word(words = {label: "Jardins", dictionary_id: 1})
-unitTest.test_insert_word(words = {label: "Ronfler", dictionary_id: 1})
-unitTest.test_insert_word(words = {label: "Bonjour", dictionary_id: 1})
-unitTest.test_insert_word(words = {label: "Bonsoir", dictionary_id: 1})
-unitTest.test_insert_word(words = {label: "Jardiner", dictionary_id: 1})
+words_list = [
+    {label: "Z", dictionary_id: 1},
+    {label: "Un", dictionary_id: 1},
+    {label: "Vie", dictionary_id: 1},
+    {label: "Deux", dictionary_id: 1},
+    {label: "Boire", dictionary_id: 1},
+    {label: "Rougir", dictionary_id: 1},
+    {label: "Jardins", dictionary_id: 1},
+    {label: "Ronfler", dictionary_id: 1},
+    {label: "Bonjour", dictionary_id: 1},
+    {label: "Bonsoir", dictionary_id: 1},
+    {label: "Jardiner", dictionary_id: 1}
+]
+
+words_list.each do |word_hash|
+    unitTest.test_insert_word(word_hash)
+end
 
 words = unitTest.test_get_all_words
-p "Did work, test_insert_word" if words.count == 11
+p "Did work, 11 * test_insert_word(word_hash)" if words.count == 11
 
 ### TEST DE RECHERCHE ###
 
