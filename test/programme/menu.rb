@@ -33,6 +33,7 @@ class Menu
 
     ####################### Loop Console #######################
     def loop
+        @sentences_helper.new_line
         @sentences_helper.first_entrie
         while user_input = @sentences_helper.saisie # loop while getting user input
 
@@ -41,43 +42,53 @@ class Menu
 
             case user_input
             when "1" # Ajouter un mot --- TERMINE
+                @sentences_helper.new_line
                 @sentences_helper.prompt_word_to_add
                 
                 # On va pouvoir ajouter plusieurs mot séparés par une virgule grâce à .split(',')
                 words_to_add = (@sentences_helper.saisie_string_words_data).split(',')
 
-                # A chaque mot son traitement
-                words_to_add.each do |word|
+                if words_to_add.empty?
+                    @sentences_helper.word_wrong_input
+                else
+                    # A chaque mot son traitement
+                    words_to_add.each do |word|
 
-                    # Par défaut on ajoute dans le dictionnaire 1
-                    result = @sqlitedb_helper.insert("words", {label: word.downcase, dictionary_id: 1})
-                
-                    if result != []
-                        # Deux cas de non insertion possible
-                        result[:errorMessage].include?("UNIQUE") ? @sentences_helper.word_exists(word) : @sentences_helper.word_empty
-                    else
-                        # Affiche les mots ajoutés au dictionnaire
-                        @sentences_helper.display_word_added(word)
+                        # Par défaut on ajoute dans le dictionnaire 1
+                        result = @sqlitedb_helper.insert("words", {label: word.downcase, dictionary_id: 1})
+                    
+                        if result != []
+                            # Deux cas de non insertion possible
+                            result[:errorMessage].include?("UNIQUE") ? @sentences_helper.word_exists(word) : @sentences_helper.word_wrong_input
+                        else
+                            # Affiche les mots ajoutés au dictionnaire
+                            @sentences_helper.display_word_added(word)
+                        end
                     end
                 end
 
             when "2" # Retirer un ou plusieurs mots séparés par une virgule --- TERMINE
+                @sentences_helper.new_line
                 @sentences_helper.prompt_word_to_remove
                 words_to_remove_input = (@sentences_helper.saisie_string_words_data).split(',')
 
-                # Pas de données en retour d'execution du delete donc 
-                # on check les mots qui existent parmi ceux selectionnes
-                # pas de recheck aprés coup, un peu too much d'aprés moi
-                words_to_remove_input.each do |word|
-                    unless @sqlitedb_helper.get_one_by_single_param("words", "label", word).empty?
-                        words_to_remove << word
+                if words_to_remove_input.empty?
+                    @sentences_helper.word_wrong_input
+                else
+                    # Pas de données en retour d'execution du delete donc 
+                    # on check les mots qui existent parmi ceux selectionnes
+                    # pas de recheck aprés coup, un peu too much d'aprés moi
+                    words_to_remove_input.each do |word|
+                        unless @sqlitedb_helper.get_one_by_single_param("words", "label", word).empty?
+                            words_to_remove << word
+                        end
                     end
+                    @sqlitedb_helper.delete_by_param("words", "label", words_to_remove)
+                    @sentences_helper.words_removed_from_dictionnary(words_to_remove)
                 end
-                @sqlitedb_helper.delete_by_param("words", "label", words_to_remove)
-                @sentences_helper.words_removed_from_dictionnary(words_to_remove)
                 
-
             when "3" # Recherche d'un mot 2 méthodes
+                @sentences_helper.new_line
                 @sentences_helper.search_two_choices
                 
                 # SELECTION DE LA METHODE
@@ -101,22 +112,21 @@ class Menu
 
                 case method_input
                 when "a" # METHODE A (4 questions)
+                    @sentences_helper.new_line
                     word_clues = @sentences_helper.a_entrie
-                    p word_clues
                     words = @sqlitedb_helper.search("words", "conditions", word_clues)
                 when "b" # METHODE B (_ et %)
                     word_wildcards = @sentences_helper.description_method_b
                     words = @sqlitedb_helper.search("words", "wildcards", word_wildcards)
                 end
 
-                if words.count.positive?
-                    words.each do |word|
-                        found_word += " #{word}"
-                    end
-                    p "Mots trouves : " + found_word
-                else
-                    p "Aucun mot ne correspond à cette recherche"
-                end
+                @sentences_helper.new_line
+                @sentences_helper.words_found_search(words)
+
+            when "4"
+                @sentences_helper.new_line
+                words = @sqlitedb_helper.get_all("words")
+                @sentences_helper.words_in_dictionnary(words)
 
             when "q" # QUIT
                 # TODO WRITE current DICTIONARY IN OUR FILE.text
@@ -132,14 +142,11 @@ class Menu
             # PREMIER CHOIX INCONNU
             else
                 @sentences_helper.wrong_action_choice
+                @sentences_helper.new_line
             end
 
-            # FIN DE BOUCLE, AFFICHE LES MOTS DANS LE DICTIONNAIRE
-            words = @sqlitedb_helper.get_all("words")
-            @sentences_helper.words_in_dictionnary(words)
-            
-
-            # AFFICHAGE A LA FIN D'UNE BOUCLE
+            # FIN DE BOUCLE
+            @sentences_helper.new_line
             @sentences_helper.end_loop
         end
     end

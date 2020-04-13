@@ -2,6 +2,11 @@
 
 class SentencesHelper
     # Input
+
+    def new_line
+        puts "\n"
+    end
+
     def prompt
         print "> "
     end
@@ -47,9 +52,22 @@ class SentencesHelper
         puts "Merci d'avoir utilisez le dictionnaire simple and new"
     end
 
+    def words_found_search(words) 
+        if words.count.positive?
+            list = "#{words.count} mot(s) trouvé(s) dans le dictionnaire : \n"
+            words.each_with_index do |label, index|
+                list += "#{label} " + ((index+1) < words.count ? ", " : "")
+            end
+        else
+            list = "Aucun mot not correspond à cette recherche"
+        end
+
+        puts list
+    end
+
     def words_in_dictionnary(words) 
         if words.count.positive?
-            list = "#{words.count} Mots dans le dictionnaire : "
+            list = "#{words.count} mots dans le dictionnaire : \n"
             words.each_with_index do |label, index|
                 list += "#{label} " + ((index+1) < words.count ? ", " : "")
             end
@@ -60,12 +78,28 @@ class SentencesHelper
         puts list
     end
 
+    # Words removed
+    def words_removed_from_dictionnary(words) 
+        if words.count.positive?
+            list = "#{words.count} mot(s) supprimé(s) du dictionnaire : \n"
+            words.each_with_index do |label, index|
+                list += "#{label} " + ((index+1) < words.count ? ", " : "")
+            end
+        else
+            list = "Aucun mot n'a été supprimé du dictionnaire"
+        end
+
+        puts list
+    end
+
     # Action possibilities
     def action_selection
         puts "
         1 - Ajouter un mot au dictionnaire ? 
         2 - Retirer un mot du dictionnaire ?
-        3 - Rechercher un mot dans le dictionnaire "
+        3 - Rechercher un mot dans le dictionnaire 
+        4 - Afficher les mots du dictionnaire (ordre alphabétique).
+        q - Pour quitter (les données seront sauvegardées)"
     end 
 
     def search_two_choices
@@ -75,7 +109,7 @@ class SentencesHelper
     end
 
     def start_again
-        puts "Si vous souhaitez arreter, tappez q. Sinon choisissez une action."
+        puts "Vous pouvez choisir une nouvelle action."
     end
 
     # Method A
@@ -129,37 +163,24 @@ class SentencesHelper
         puts "Ceci ne correspond à aucune action. "
     end
 
-    # Words removed
-    def words_removed_from_dictionnary(words) 
-        if words.count.positive?
-            list = "#{words.count} mot(s) supprimé(s) du dictionnaire : "
-            words.each_with_index do |label, index|
-                list += "#{label} " + ((index+1) < words.count ? ", " : "")
-            end
-        else
-            list = "Aucun mot n'a été supprimé du dictionnaire"
-        end
-
-        puts list
-    end
-
     # Word added
     def display_word_added(added_word)
-        p "Le mot " + added_word + " a ete ajoute"     
+        puts "Le mot " + added_word + " a ete ajoute"    
     end
 
     # Word already exists
     def word_exists(word)
-        p "Le mot #{word} existe dans le dictionnaire"
+        puts "Le mot #{word} existe dans le dictionnaire"
     end
 
-    # Empty word
-    def word_empty
-        p "Vous ne pouvez pas enregistrer un mot vide"
+    # Wrong word input
+    def word_wrong_input
+        puts "Erreur de saisie: Mot vide ou ne contenant que des caractères interdits"
     end
 
     # Proc
     def first_entrie
+        puts "******************************** Simple & New : MENU *********************************************"
         welcome_sentence
         action_selection
         prompt

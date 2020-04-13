@@ -11,7 +11,7 @@ class WordSqliteRequestHelper
     end
 
     def get_all_words
-        return "SELECT * FROM words"
+        return "SELECT * FROM words ORDER BY label"
     end
 
     # Insert Word structured as a HASH
