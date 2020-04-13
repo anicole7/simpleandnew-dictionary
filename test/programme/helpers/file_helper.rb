@@ -4,7 +4,7 @@ class FileHelper
     attr_accessor :file
 
     def initialize
-        puts "INITIALISE FILE HELPER"
+        # puts "INITIALISE FILE HELPER"
     end
 
     def open_file(file_path = nil)

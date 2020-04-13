@@ -3,7 +3,7 @@
 class BddStructureHelper
 
     def initialize
-        puts "INITIALISE BDD STRUCTURE HELPER"
+        # puts "INITIALISE BDD STRUCTURE HELPER"
     end
 
     def get_table_list
