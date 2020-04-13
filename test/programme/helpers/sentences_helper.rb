@@ -7,15 +7,31 @@ class SentencesHelper
     end
 
     def prompt_word_to_add
-        print "Saisissez le mot à ajouter > "
+        print "Saisissez un ou plusieurs mots separes d'une virgule, à ajouter > "
     end
 
     def prompt_word_to_remove
-        print "Saisissez le mot à retirer > "
+        print "Saisissez un ou plusieurs mots separes d'une virgule, à retirer > "
     end
 
     def saisie
         return self.remove_space((gets.chomp).downcase)
+    end
+
+    def saisie_string_words_data
+        return self.remove_space((gets.chomp).downcase).gsub(/[^A-Za-z,]/, "")
+    end
+
+    def saisie_string_data
+        return self.remove_space((gets.chomp).downcase).gsub(/[^A-Za-z]/, "")
+    end
+
+    def saisie_wildcards_data
+        return self.remove_space((gets.chomp).downcase).gsub(/[^A-Za-z_%]/, "")
+    end
+
+    def saisie_integer_data
+        return self.remove_space((gets.chomp).downcase).gsub(/[^0-9]/, "")
     end
 
     def remove_space(string)
@@ -24,19 +40,32 @@ class SentencesHelper
     
     # Greetings
     def welcome_sentence 
-        puts "Bonjour et bienvenu dans le dictionnaire. Quelle action souhaitez-vous exécuter ?"
+        puts "Bonjour et bienvenu dans le dictionnaire. Quelle action souhaitez-vous exécuter ? "
     end
 
     def bye_sentence 
         puts "Merci d'avoir utilisez le dictionnaire simple and new"
     end
 
+    def words_in_dictionnary(words) 
+        if words.count.positive?
+            list = "#{words.count} Mots dans le dictionnaire : "
+            words.each_with_index do |label, index|
+                list += "#{label} " + ((index+1) < words.count ? ", " : "")
+            end
+        else
+            list = "Aucun mot dans le dictionnaire"
+        end
+
+        puts list
+    end
+
     # Action possibilities
     def action_selection
         puts "
         1 - Ajouter un mot au dictionnaire ? 
-        2 - Retirer un mot du dictionnaire ? - 
-        3 - Rechercher un mot dans le dictionnaire"
+        2 - Retirer un mot du dictionnaire ?
+        3 - Rechercher un mot dans le dictionnaire "
     end 
 
     def search_two_choices
@@ -55,28 +84,30 @@ class SentencesHelper
     end
 
     # Method A, 4 questions
+    # On part du principe que pour min et max l'utilisateur 
+    # doit saisir un nombre, sinon la valeur sera nil
     def min_size_question
         puts "Quelle est la taille minimale du mot recherché ?"
         prompt
-        return saisie
+        return saisie_integer_data
     end
-
     def max_size_question
         puts "Quelle est la taille maximale du mot recherché ?"
         prompt
-        return saisie
+        return saisie_integer_data
     end
-
+    # On part du principe que pour first et last l'utilisateur 
+    # doit saisir une lettre, sinon la valeur sera nil
     def first_letter_question
         puts "Quelle est la première lettre du mot recherché ?"
         prompt
-        return saisie
+        return saisie_string_data
     end
 
     def last_letter_question
         puts "Quelle est la dernière lettre du mot recherché ?"
         prompt
-        return saisie
+        return saisie_string_data
     end
 
     # Method B
@@ -86,7 +117,7 @@ class SentencesHelper
         Ecrivez un mot en incluant _ pour une lettre quelconque et %  pour un ensemble de lettres. 
         Exemple _on%r pour BonJOUr, BonSOIr ou encore BonHEUr"
         prompt
-        return saisie
+        return saisie_wildcards_data
     end
 
     # Wrong choice
@@ -95,12 +126,26 @@ class SentencesHelper
     end
 
     def wrong_action_choice
-        puts "Ceci ne correspond à aucune action."
+        puts "Ceci ne correspond à aucune action. "
     end
 
-    # Word already exists
-    def display_words_added(words, added_word)
-        p words.count > 1 ? ("Les mots" + added_word + " ont etes ajoutes") : ("Le mot" + added_word + " a ete ajoute")         
+    # Words removed
+    def words_removed_from_dictionnary(words) 
+        if words.count.positive?
+            list = "#{words.count} mot(s) supprimé(s) du dictionnaire : "
+            words.each_with_index do |label, index|
+                list += "#{label} " + ((index+1) < words.count ? ", " : "")
+            end
+        else
+            list = "Aucun mot n'a été supprimé du dictionnaire"
+        end
+
+        puts list
+    end
+
+    # Word added
+    def display_word_added(added_word)
+        p "Le mot " + added_word + " a ete ajoute"     
     end
 
     # Word already exists

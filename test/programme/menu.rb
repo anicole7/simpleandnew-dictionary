@@ -2,6 +2,7 @@ require "./helpers/sentences_helper.rb"
 require "./helpers/sqlitedb_helper.rb"
 require "./helpers/file_helper.rb"
 
+# Notre class 'Main'
 class Menu
 
     attr_accessor :sentences_helper
@@ -10,17 +11,22 @@ class Menu
 
     # Constructeur
     def initialize
-        puts "INITIALISE MENU"
-
         # Déclaration des différents helpers
         @file_helper = FileHelper.new
         @sentences_helper = SentencesHelper.new
         @sqlitedb_helper = SqlitedbHelper.new
 
-        dictionary_data = @file_helper.get_file_data
-        dictionary_data.each do |word|
-            @sqlitedb_helper.insert("words", {label: word, dictionary_id: 1})
-        end
+        # Permet l'acces à l'application en attendant que
+        # l'import de donnees soit termine
+        thr = Thread.new { 
+            time = Time.now
+            dictionary_data = @file_helper.get_file_data
+            dictionary_data.each do |word|
+                @sqlitedb_helper.insert("words", {label: word.downcase, dictionary_id: 1})
+            end
+            time_end = Time.now
+            #p "Import termine en " + (time_end - time).to_s + " secondes"
+        }
 
         self.loop
     end
@@ -30,37 +36,46 @@ class Menu
         @sentences_helper.first_entrie
         while user_input = @sentences_helper.saisie # loop while getting user input
 
-            added_word = ""
+            found_word = ""
+            words_to_remove = []
 
             case user_input
-            when "1" # Ajouter un mot
+            when "1" # Ajouter un mot --- TERMINE
                 @sentences_helper.prompt_word_to_add
+                
                 # On va pouvoir ajouter plusieurs mot séparés par une virgule grâce à .split(',')
-                words_to_add = (@sentences_helper.saisie).split(',')
+                words_to_add = (@sentences_helper.saisie_string_words_data).split(',')
 
                 # A chaque mot son traitement
                 words_to_add.each do |word|
+
                     # Par défaut on ajoute dans le dictionnaire 1
-                    if (t = @sqlitedb_helper.insert("words", {label: word, dictionary_id: 1})) != []
-                        error = t[:errorMessage]
-                        if error.include?("UNIQUE")
-                            @sentences_helper.word_exists(word)
-                        else
-                            @sentences_helper.word_empty
-                        end
+                    result = @sqlitedb_helper.insert("words", {label: word.downcase, dictionary_id: 1})
+                
+                    if result != []
+                        # Deux cas de non insertion possible
+                        result[:errorMessage].include?("UNIQUE") ? @sentences_helper.word_exists(word) : @sentences_helper.word_empty
                     else
-                        added_word +=  " #{word}"
+                        # Affiche les mots ajoutés au dictionnaire
+                        @sentences_helper.display_word_added(word)
                     end
                 end
-                @sentences_helper.display_words_added(words_to_add, added_word)
-                
-                # TODO implémenter un helper pour la gestion des erreurs ?
 
-            when "2" # Retirer un ou plusieurs mots
+            when "2" # Retirer un ou plusieurs mots séparés par une virgule --- TERMINE
                 @sentences_helper.prompt_word_to_remove
-                word_to_remove = @sentences_helper.saisie
-                @sqlitedb_helper.delete_by_param("words", "label", word_to_remove.split(","))
-                # TODO afficher un message de succées ou erreur
+                words_to_remove_input = (@sentences_helper.saisie_string_words_data).split(',')
+
+                # Pas de données en retour d'execution du delete donc 
+                # on check les mots qui existent parmi ceux selectionnes
+                # pas de recheck aprés coup, un peu too much d'aprés moi
+                words_to_remove_input.each do |word|
+                    unless @sqlitedb_helper.get_one_by_single_param("words", "label", word).empty?
+                        words_to_remove << word
+                    end
+                end
+                @sqlitedb_helper.delete_by_param("words", "label", words_to_remove)
+                @sentences_helper.words_removed_from_dictionnary(words_to_remove)
+                
 
             when "3" # Recherche d'un mot 2 méthodes
                 @sentences_helper.search_two_choices
@@ -87,19 +102,31 @@ class Menu
                 case method_input
                 when "a" # METHODE A (4 questions)
                     word_clues = @sentences_helper.a_entrie
+                    p word_clues
                     words = @sqlitedb_helper.search("words", "conditions", word_clues)
-                    p words
-                    # afficher un message de succées ou erreur
-
                 when "b" # METHODE B (_ et %)
                     word_wildcards = @sentences_helper.description_method_b
                     words = @sqlitedb_helper.search("words", "wildcards", word_wildcards)
-                    p words
-                    # afficher un message de succées ou erreur
+                end
 
+                if words.count.positive?
+                    words.each do |word|
+                        found_word += " #{word}"
+                    end
+                    p "Mots trouves : " + found_word
+                else
+                    p "Aucun mot ne correspond à cette recherche"
                 end
 
             when "q" # QUIT
+                # TODO WRITE current DICTIONARY IN OUR FILE.text
+                open('dictionary.text', 'w') do |f|
+                    @sqlitedb_helper.get_all("words").each do |word|
+                        f << word 
+                        f.puts @string
+                    end
+                end
+
                 @sentences_helper.bye_sentence
                 break
             # PREMIER CHOIX INCONNU
@@ -109,11 +136,8 @@ class Menu
 
             # FIN DE BOUCLE, AFFICHE LES MOTS DANS LE DICTIONNAIRE
             words = @sqlitedb_helper.get_all("words")
-            list = "#{words.count} Mots dans le dictionnaire : "
-            words.each_with_index do |label, index|
-                list += "#{label} " + ((index+1) < words.count ? ", " : "")
-            end
-            p list
+            @sentences_helper.words_in_dictionnary(words)
+            
 
             # AFFICHAGE A LA FIN D'UNE BOUCLE
             @sentences_helper.end_loop
