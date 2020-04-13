@@ -13,7 +13,7 @@ class SqlitedbHelper
 
     # Constructeur
     def initialize(db_name = nil)
-        puts "INITIALISE DB HELPER"
+        # puts "INITIALISE DB HELPER"
         @bdd_structure_helper = BddStructureHelper.new
         @word_sqlite_request_helper = WordSqliteRequestHelper.new
 
@@ -31,6 +31,7 @@ class SqlitedbHelper
             # Par défaut ouvre simpleandnewdictionnary.db
             @sqlitedb_helper = SQLite3::Database.new "simpleandnewdictionnary.db"
         end
+        #execute_request("PRAGMA encoding = 'UTF-16';")
         @sqlitedb_helper.results_as_hash = true
 
         return @sqlitedb_helper
@@ -50,10 +51,33 @@ class SqlitedbHelper
         end
     end
 
-    # Select * from a table
+    # Select one param
+    def get_one_by_single_param(table_name, param, value)
+        
+        case table_name
+        when "words"
+            request = @word_sqlite_request_helper.public_send("get_#{table_name}_by_#{param}", value)
+        when "dictionaries"
+            #request_values = @dictionary_sqlite_request_helper.public_send("get_#{table_name}_by_#{param}", value)
+        end
+
+        result = execute_request(request)
+
+        return format_result(table_name, result)
+    end
+
+    # Select all from a table
     def get_all(table_name)
-        data = execute_request("SELECT * from #{table_name};") 
-        return format_result(table_name, data)
+        case table_name
+        when "words"
+            request = @word_sqlite_request_helper.get_all_words
+        when "dictionaries"
+            #request_values = @dictionary_sqlite_request_helper.get_all_dictionaries
+        end
+
+        result = execute_request(request)
+
+        return format_result(table_name, result)
     end
 
     # Insert object in a table
@@ -65,7 +89,7 @@ class SqlitedbHelper
         when "words"
             request_values = @word_sqlite_request_helper.insert_word(object_hash)
         when "dictionaries"
-            request_values = @dictionary_sqlite_request_helper.insert_dictionary(object_hash)
+            #request_values = @dictionary_sqlite_request_helper.insert_dictionary(object_hash)
         end
 
         # request_values[0] for request string, request_values[1] for values
@@ -82,7 +106,7 @@ class SqlitedbHelper
         when "words"
             request = @word_sqlite_request_helper.public_send("delete_#{table_name}_by_#{param}", values)
         when "dictionaries"
-            request = @dictionary_sqlite_request_helper.public_send("delete_#{table_name}_by_#{param}", values)
+            #request = @dictionary_sqlite_request_helper.public_send("delete_#{table_name}_by_#{param}", values)
         end
 
         result = execute_request(request)
@@ -95,7 +119,7 @@ class SqlitedbHelper
         when "words"
             request = @word_sqlite_request_helper.public_send("search_#{table_name}_by_#{method}", value)
         when "dictionaries"
-            request = @dictionary_sqlite_request_helper.public_send("search_#{table_name}_by_#{method}", value)
+            #request = @dictionary_sqlite_request_helper.public_send("search_#{table_name}_by_#{method}", value)
         end
 
         result = execute_request(request)
@@ -131,7 +155,7 @@ class SqlitedbHelper
         when "words"
             formatted_result = @word_sqlite_request_helper.public_send("format_#{table_name}_result", result)
         when "dictionaries"
-            formatted_result = @dictionary_sqlite_request_helper.public_send("format_#{table_name}_result", result)
+            #formatted_result = @dictionary_sqlite_request_helper.public_send("format_#{table_name}_result", result)
         end
 
         return formatted_result
