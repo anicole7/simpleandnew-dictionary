@@ -7,7 +7,7 @@ class UnitTestHelper
     attr_accessor :sqlitedb_helper
 
     def initialize
-        puts "INITIALISE UNIT TEST HELPER"
+        # puts "INITIALISE UNIT TEST HELPER"
         @file_helper = FileHelper.new
         @sqlitedb_helper = SqlitedbHelper.new
     end
