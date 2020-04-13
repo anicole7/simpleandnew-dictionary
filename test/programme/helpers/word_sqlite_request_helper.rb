@@ -3,7 +3,15 @@
 class WordSqliteRequestHelper
 
     def initialize
-        puts "INITIALISE WORD REQUEST HELPER"
+        # puts "INITIALISE WORD REQUEST HELPER"
+    end
+
+    def get_words_by_label(label)
+        return "SELECT * FROM words WHERE label = '#{label}'"
+    end
+
+    def get_all_words
+        return "SELECT * FROM words"
     end
 
     # Insert Word structured as a HASH
