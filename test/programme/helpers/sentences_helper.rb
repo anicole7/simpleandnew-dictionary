@@ -80,10 +80,12 @@ class SentencesHelper
 
     # Words removed
     def words_removed_from_dictionnary(words) 
+        words = words.uniq
         if words.count.positive?
             list = "#{words.count} mot(s) supprimé(s) du dictionnaire : \n"
             words.each_with_index do |label, index|
-                list += "#{label} " + ((index+1) < words.count ? ", " : "")
+                list += "#{label} " if !list.include?("#{label}")
+                list += ((index+1) < words.count ? ", " : "")
             end
         else
             list = "Aucun mot n'a été supprimé du dictionnaire"
