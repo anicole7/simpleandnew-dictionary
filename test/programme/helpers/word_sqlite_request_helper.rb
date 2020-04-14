@@ -91,13 +91,13 @@ class WordSqliteRequestHelper
         end
 
         if first && !first.empty?
-            first_cond = " SUBSTR(label, 1, 1) = '#{first}'"
+            first_cond = " SUBSTR(label, 1, #{first.length }) = '#{first}'"
             request += and_flag ? (and_sentence + first_cond) : first_cond
             and_flag = true
         end
 
         if last && !last.empty?
-            last_cond = " SUBSTR(label, LENGTH(label), 1) = '#{last}'"
+            last_cond = " SUBSTR(label, LENGTH(label) - #{last.length-1}, #{last.length}) = '#{last}'"
             request += and_flag ? (and_sentence + last_cond) : last_cond
             and_flag = true
         end

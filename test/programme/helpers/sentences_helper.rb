@@ -106,7 +106,7 @@ class SentencesHelper
 
     def search_two_choices
         puts "Vous avez la possibilité de choisir entre deux méthodes, a ou b
-        a - 4 questions vous seront posées
+        a - recherche via conditions
         b - recherche par wildcards _ et % "
     end
 
@@ -116,33 +116,29 @@ class SentencesHelper
 
     # Method A
     def description_method_a
-        puts "Vous avez choisi la méthode a, voici 4 questions"
+        puts "Vous avez choisi la méthode a, voici 4 questions (facultatives)"
     end
 
     # Method A, 4 questions
     # On part du principe que pour min et max l'utilisateur 
     # doit saisir un nombre, sinon la valeur sera nil
     def min_size_question
-        puts "Quelle est la taille minimale du mot recherché ?"
-        prompt
+        print "La taille minimale du mot recherché est > "
         return saisie_integer_data
     end
     def max_size_question
-        puts "Quelle est la taille maximale du mot recherché ?"
-        prompt
+        print "La taille maximale du mot recherché est > "
         return saisie_integer_data
     end
     # On part du principe que pour first et last l'utilisateur 
     # doit saisir une lettre, sinon la valeur sera nil
     def first_letter_question
-        puts "Quelle est la première lettre du mot recherché ?"
-        prompt
+        print "Le mot recherché commence par > "
         return saisie_string_data
     end
 
     def last_letter_question
-        puts "Quelle est la dernière lettre du mot recherché ?"
-        prompt
+        print "Le mot recherché termine par > "
         return saisie_string_data
     end
 
