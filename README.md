@@ -1,24 +1,6 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Le dossier programme contenant les fonctionnalités est situé dans test.
 
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+Faire un bundle install suivi de la commande ocra menu.rb dans le dossier programme pour générer l'exécutable.
+Sinon faire simplement un ruby menu.rb et ./helpers/unit_test_helper.rb pour lancer les test unitaires.
